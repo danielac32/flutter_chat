@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:yes_no_app/views/providers/chat_provider.dart';
 
+import '../../../domain/entities/message.dart';
+import '../../shared/message_field_box.dart';
+import '../../widgets/chat/her_message_bubble.dart';
 import '../../widgets/chat/my_message_bubble.dart';
 
 class CounterController extends GetxController {
@@ -71,6 +76,9 @@ class _ChatView extends  StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider=context.watch<ChatProvider>();
+
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal:   10 ),
@@ -81,16 +89,28 @@ class _ChatView extends  StatelessWidget {
             )),*/
             Expanded(
               child: ListView.builder(
-                itemCount: 100,
+               /* itemCount: 100,
                 itemBuilder: (context, index) {
-                   return MyMessageBubble();
+                   return (index % 2 ==0)
+                     ? HerMessageBubble() : MyMessageBubble();
+                },*/
+                itemCount: chatProvider.messageList.length,
+                itemBuilder: (context, index) {
+                   final message=chatProvider.messageList[index];
+                   return ( message.fromWho == FromWho.hers)
+                           ? HerMessageBubble()
+                           : MyMessageBubble(message: message);
                 },
+
               ),
             ),
-            Text("data")
+            //caja de texto
+            MessageFieldBox(),// Text("data")
           ],
         ),
       ),
     );
   }
 }
+
+
