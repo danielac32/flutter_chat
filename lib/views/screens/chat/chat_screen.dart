@@ -7,6 +7,7 @@ import '../../../domain/entities/message.dart';
 import '../../shared/message_field_box.dart';
 import '../../widgets/chat/her_message_bubble.dart';
 import '../../widgets/chat/my_message_bubble.dart';
+import 'package:http/http.dart' as http;
 
 class CounterController extends GetxController {
   // Variable reactiva para el contador (privada)
@@ -61,6 +62,24 @@ class ChatScreen extends StatelessWidget {
             onPressed: (){
               counterController.increment();
             },
+          ),
+          IconButton(
+              onPressed: () async {
+                try {
+                  // Realizar la solicitud GET
+                  final response = await http.get(Uri.parse('https://catfact.ninja/fact'));
+
+                  // Verificar si la solicitud fue exitosa
+                  if (response.statusCode == 200) {
+                      print(response.body);
+                  } else {
+                    print("Error: ${response.statusCode}");
+                  }
+                } catch (e) {
+                  print("Exception occurred: $e");
+                }
+              },
+            icon: Icon(Icons.get_app)
           )
         ],
       ),
@@ -89,6 +108,7 @@ class _ChatView extends  StatelessWidget {
             )),*/
             Expanded(
               child: ListView.builder(
+                controller: chatProvider.chatScrollController,
                /* itemCount: 100,
                 itemBuilder: (context, index) {
                    return (index % 2 ==0)
@@ -98,14 +118,16 @@ class _ChatView extends  StatelessWidget {
                 itemBuilder: (context, index) {
                    final message=chatProvider.messageList[index];
                    return ( message.fromWho == FromWho.hers)
-                           ? HerMessageBubble()
+                           ? HerMessageBubble(message: message)
                            : MyMessageBubble(message: message);
                 },
 
               ),
             ),
             //caja de texto
-            MessageFieldBox(),// Text("data")
+            MessageFieldBox(
+              onValue: (value)=> chatProvider.sendMessage(value),
+            ),// Text("data")
           ],
         ),
       ),
